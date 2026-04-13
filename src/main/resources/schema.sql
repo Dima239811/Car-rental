@@ -1,5 +1,12 @@
+DROP TABLE IF EXISTS rental_car;
+DROP TABLE IF EXISTS rentals;
+DROP TABLE IF EXISTS cars;
+DROP TABLE IF EXISTS employees;
+DROP TABLE IF EXISTS clients;
+DROP TABLE IF EXISTS users;
+
 CREATE TABLE users (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id BIGSERIAL PRIMARY KEY,
     login VARCHAR(255) UNIQUE,
     password VARCHAR(255),
     full_name VARCHAR(255),
@@ -8,7 +15,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE clients (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id BIGSERIAL PRIMARY KEY,
     driver_license VARCHAR(255),
     birth_date DATE,
     rent_count INT,
@@ -18,9 +25,9 @@ CREATE TABLE clients (
 );
 
 CREATE TABLE employees (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id BIGSERIAL PRIMARY KEY,
     position VARCHAR(255),
-    salary DOUBLE,
+    salary DOUBLE PRECISION,
     department VARCHAR(255),
     office_number VARCHAR(50),
     work_email VARCHAR(255),
@@ -29,12 +36,12 @@ CREATE TABLE employees (
 );
 
 CREATE TABLE cars (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id BIGSERIAL PRIMARY KEY,
     brand VARCHAR(255),
     model VARCHAR(255),
     year INT,
-    price DOUBLE,
-    deposit DOUBLE,
+    price DOUBLE PRECISION,
+    deposit DOUBLE PRECISION,
     available BOOLEAN,
     vin VARCHAR(255),
     registration_date DATE,
@@ -45,7 +52,7 @@ CREATE TABLE cars (
 );
 
 CREATE TABLE rentals (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id BIGSERIAL PRIMARY KEY,
     status VARCHAR(50),
     start_date DATE,
     end_date DATE,
@@ -59,7 +66,7 @@ CREATE TABLE rentals (
 CREATE TABLE rental_car (
     car_id BIGINT NOT NULL,
     rental_id BIGINT NOT NULL,
-    discount DOUBLE,
+    discount DOUBLE PRECISION,
     PRIMARY KEY (car_id, rental_id),
     FOREIGN KEY (car_id) REFERENCES cars(id),
     FOREIGN KEY (rental_id) REFERENCES rentals(id)

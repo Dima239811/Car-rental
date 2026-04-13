@@ -1,30 +1,35 @@
 package com.infy.controller;
 
+import com.infy.dto.AuthResponse;
 import com.infy.dto.LoginRequest;
-import com.infy.entity.User;
+import com.infy.dto.RegisterClientRequest;
+
+import com.infy.entity.Client;
 import com.infy.service.AuthService;
-import lombok.RequiredArgsConstructor;
+import com.infy.service.ClientService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
 
-    @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody LoginRequest request) {
-        User user = authService.login(request.getLogin(), request.getPassword());
-        return ResponseEntity.ok(user);
+    private final ClientService clientService;
+
+    public AuthController(AuthService authService, ClientService clientService) {
+        this.authService = authService;
+        this.clientService = clientService;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody LoginRequest request) {
-        User user = new User();
-        user.setLogin(request.getLogin());
-        user.setPassword(request.getPassword());
-        User saved = authService.register(user);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<Client> register(@RequestBody RegisterClientRequest request) {
+        Client client = clientService.register(request);
+        return ResponseEntity.ok(client);
+    }
+
+    @PostMapping("/login")
+    public AuthResponse login(@RequestBody LoginRequest request) {
+        return authService.login(request);
     }
 }

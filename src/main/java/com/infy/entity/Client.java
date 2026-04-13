@@ -22,7 +22,7 @@ public class Client {
 
     private String driverLicense;
     private LocalDate birthDate;
-    private Integer rentCount;
+    private int rentCount;
     private String personalEmail;
 
     @OneToOne(optional = false, fetch = FetchType.LAZY)

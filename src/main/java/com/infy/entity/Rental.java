@@ -1,5 +1,6 @@
 package com.infy.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.infy.enums.RentalStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -38,6 +39,7 @@ public class Rental {
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "rental", fetch = FetchType.LAZY)
     private List<RentalCar> rentalCars;
 }

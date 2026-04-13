@@ -1,5 +1,6 @@
 package com.infy.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -59,6 +60,7 @@ public class Car {
     private LocalDate inspectionValidUntil;
 
 
+    @JsonIgnore
     @OneToMany(mappedBy = "car", fetch = FetchType.LAZY)
     private List<RentalCar> rentalCars;
 }

@@ -1,12 +1,17 @@
 package com.infy.service;
 
+import com.infy.dto.CreateEmployeeRequest;
 import com.infy.entity.Employee;
 import com.infy.entity.Rental;
+import com.infy.entity.User;
 import com.infy.enums.RentalStatus;
+import com.infy.enums.Role;
 import com.infy.exception.BadRequestException;
 import com.infy.repo.EmployeeRepository;
 import com.infy.repo.RentalRepository;
+import com.infy.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +25,8 @@ public class EmployeeService {
 
     private final RentalRepository rentalRepository;
 
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public List<Employee> findAll() {
@@ -63,5 +70,29 @@ public class EmployeeService {
             throw new BadRequestException("Невозможно удалить сотрудника с ID " + id + ": есть активные аренды");
         }
         employeeRepository.deleteById(id);
+    }
+
+    public Employee createEmployee(CreateEmployeeRequest request) {
+        if (userRepository.findByLogin(request.getLogin()).isPresent()) {
+            throw new BadRequestException("Пользователь с логином '" + request.getLogin() + "' уже существует");
+        }
+
+        User user = new User();
+        user.setLogin(request.getLogin());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setFullName(request.getFullName());
+        user.setPhone(request.getPhone());
+        user.setRole(Role.MANAGER);
+        user = userRepository.save(user);
+
+        Employee employee = new Employee();
+        employee.setPosition(request.getPosition());
+        employee.setSalary(request.getSalary());
+        employee.setDepartment(request.getDepartment());
+        employee.setOfficeNumber(request.getOfficeNumber());
+        employee.setWorkEmail(request.getWorkEmail());
+        employee.setUser(user);
+
+        return employeeRepository.save(employee);
     }
 }
