@@ -1,5 +1,6 @@
 package com.infy.entity;
 
+import com.infy.enums.RentalStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,10 @@ public class Rental {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private RentalStatus status = RentalStatus.PENDING;
 
     private LocalDate startDate;
     private LocalDate endDate;

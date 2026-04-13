@@ -46,6 +46,7 @@ CREATE TABLE cars (
 
 CREATE TABLE rentals (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    status VARCHAR(50),
     start_date DATE,
     end_date DATE,
     comment TEXT,

@@ -41,6 +41,18 @@ public class RentalCarService {
     }
 
     @Transactional
+    public RentalCar update(CarRentalId id, RentalCar rentalCar) {
+        RentalCar existing = rentalCarRepository.findById(id)
+                .orElseThrow(() -> new com.infy.exception.ResourceNotFoundException("Связь аренда-авто (carId=" + id.getCarId() + ", rentalId=" + id.getRentalId() + ") не найдена"));
+
+        existing.setCar(rentalCar.getCar());
+        existing.setRental(rentalCar.getRental());
+        existing.setDiscount(rentalCar.getDiscount());
+
+        return rentalCarRepository.save(existing);
+    }
+
+    @Transactional
     public void deleteById(CarRentalId id) {
         rentalCarRepository.deleteById(id);
     }

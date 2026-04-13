@@ -1,6 +1,9 @@
 package com.infy.service;
 
 import com.infy.entity.Rental;
+import com.infy.enums.RentalStatus;
+import com.infy.exception.BadRequestException;
+import com.infy.exception.ResourceNotFoundException;
 import com.infy.repo.RentalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,7 +44,29 @@ public class RentalService {
     }
 
     @Transactional
+    public Rental update(Long id, Rental rental) {
+        Rental existing = rentalRepository.findById(id)
+                .orElseThrow(() -> new com.infy.exception.ResourceNotFoundException("Аренда с ID " + id + " не найдена"));
+
+        existing.setStatus(rental.getStatus());
+        existing.setStartDate(rental.getStartDate());
+        existing.setEndDate(rental.getEndDate());
+        existing.setComment(rental.getComment());
+        existing.setClient(rental.getClient());
+        existing.setEmployee(rental.getEmployee());
+
+        return rentalRepository.save(existing);
+    }
+
+    @Transactional
     public void deleteById(Long id) {
+        Rental rental = rentalRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Аренда с ID " + id + " не найдена"));
+
+        if (rental.getStatus() == RentalStatus.ACTIVE) {
+            throw new BadRequestException("Невозможно удалить аренду с ID " + id + ": аренда ещё активна");
+        }
+
         rentalRepository.deleteById(id);
     }
 }

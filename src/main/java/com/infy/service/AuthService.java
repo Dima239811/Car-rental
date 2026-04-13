@@ -18,10 +18,10 @@ public class AuthService {
     @Transactional(readOnly = true)
     public User login(String login, String password) {
         User user = userRepository.findByLogin(login)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Пользователь с логином '" + login + "' не найден"));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new BadRequestException("Invalid password");
+            throw new BadRequestException("Неверный пароль");
         }
         return user;
     }
@@ -29,7 +29,7 @@ public class AuthService {
     @Transactional
     public User register(User user) {
         if (userRepository.findByLogin(user.getLogin()).isPresent()) {
-            throw new BadRequestException("Login already exists");
+            throw new BadRequestException("Пользователь с логином '" + user.getLogin() + "' уже существует");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
