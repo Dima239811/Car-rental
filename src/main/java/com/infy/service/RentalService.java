@@ -1,9 +1,14 @@
 package com.infy.service;
 
+import com.infy.dto.CreateRentalRequest;
+import com.infy.entity.Client;
+import com.infy.entity.Employee;
 import com.infy.entity.Rental;
 import com.infy.enums.RentalStatus;
 import com.infy.exception.BadRequestException;
 import com.infy.exception.ResourceNotFoundException;
+import com.infy.repo.ClientRepository;
+import com.infy.repo.EmployeeRepository;
 import com.infy.repo.RentalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +21,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RentalService {
     private final RentalRepository rentalRepository;
+
+    private final ClientRepository clientRepository;
+
+    private final EmployeeRepository employeeRepository;
 
     @Transactional(readOnly = true)
     public List<Rental> findAll() {
@@ -39,21 +48,42 @@ public class RentalService {
     }
 
     @Transactional
-    public Rental save(Rental rental) {
-        return rentalRepository.save(rental);
+    public Rental save(CreateRentalRequest rental) {
+        Client client = clientRepository.findById(rental.getClientId()).orElseThrow(
+                () -> new com.infy.exception.ResourceNotFoundException("Клиент с ID " + rental.getClientId() + " не найден")
+                );
+
+        Employee employee = employeeRepository.findById(rental.getEmployeeId()).orElseThrow(
+                () -> new com.infy.exception.ResourceNotFoundException("Сотрудник с ID " + rental.getEmployeeId() + " не найден")
+        );
+
+        Rental rental1 = new Rental();
+        rental1.setClient(client);
+        rental1.setEmployee(employee);
+        rental1.setComment(rental.getComment());
+        rental1.setStatus(RentalStatus.PENDING);
+        rental1.setStartDate(rental.getStartDate());
+        rental1.setEndDate(rental.getEndDate());
+
+        return rentalRepository.save(rental1);
     }
 
+
+    // без статуса обновляет
     @Transactional
-    public Rental update(Long id, Rental rental) {
+    public Rental update(Long id, CreateRentalRequest rental) {
         Rental existing = rentalRepository.findById(id)
                 .orElseThrow(() -> new com.infy.exception.ResourceNotFoundException("Аренда с ID " + id + " не найдена"));
 
-        existing.setStatus(rental.getStatus());
         existing.setStartDate(rental.getStartDate());
         existing.setEndDate(rental.getEndDate());
         existing.setComment(rental.getComment());
-        existing.setClient(rental.getClient());
-        existing.setEmployee(rental.getEmployee());
+        existing.setClient(clientRepository.findById(rental.getClientId()).orElseThrow(
+                () -> new com.infy.exception.ResourceNotFoundException("Клиент с ID " + rental.getClientId() + " не найден")
+        ));
+        existing.setEmployee(employeeRepository.findById(rental.getEmployeeId()).orElseThrow(
+                () -> new com.infy.exception.ResourceNotFoundException("Сотрудник с ID " + rental.getEmployeeId() + " не найден")
+        ));
 
         return rentalRepository.save(existing);
     }
