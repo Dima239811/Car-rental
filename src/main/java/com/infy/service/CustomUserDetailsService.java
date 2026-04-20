@@ -25,18 +25,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> user = userDAO.findByLogin(username);
-
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found with login: " + username);
-        }
+        User user = userDAO.findByLogin(username)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "User not found with login: " + username));
 
 
 
         return org.springframework.security.core.userdetails.User.builder()
-                .username(user.get().getLogin())
-                .password(user.get().getPassword())
-                .authorities(mapRolesToAuthorities(user.get().getRole()))
+                .username(user.getLogin())
+                .password(user.getPassword())
+                .authorities(mapRolesToAuthorities(user.getRole()))
                 .disabled(false)
                 .accountExpired(false)
                 .accountLocked(false)
