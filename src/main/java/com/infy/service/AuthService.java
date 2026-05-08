@@ -29,14 +29,17 @@ public class AuthService {
 
 
     public AuthResponse login(LoginRequest request) {
-        var user = customUserDetailsService.loadUserByUsername(request.getLogin());
+        var userDetails = customUserDetailsService.loadUserByUsername(request.getLogin());
 
-        if (user == null || !checkPassword(request.getPassword(), user.getPassword())) {
+        if (userDetails == null || !checkPassword(request.getPassword(), userDetails.getPassword())) {
             throw new RuntimeException("Invalid login or password");
         }
 
-        String token = jwtUtils.generateJwtToken(user);
-        return new AuthResponse(token);
+        User user = userRepository.findByLogin(userDetails.getUsername()).orElseThrow();
+
+
+        String token = jwtUtils.generateJwtToken(userDetails);
+        return new AuthResponse(token, user.getId(), user.getLogin(), user.getRole().name());
     }
 
     public boolean checkPassword(String rawPassword, String encodedPassword) {

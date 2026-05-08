@@ -2,6 +2,7 @@ package com.infy.controller;
 
 import com.infy.dto.ClientBriefResponse;
 import com.infy.dto.RequestClient;
+import com.infy.dto.UserProfileResponse;
 import com.infy.entity.Client;
 import com.infy.exception.ResourceNotFoundException;
 import com.infy.mapper.ClientMapper;
@@ -9,6 +10,7 @@ import com.infy.service.ClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -54,5 +56,13 @@ public class ClientController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         clientService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/profile")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CLIENT')")
+    public ResponseEntity<UserProfileResponse> getUserProfile(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                clientMapper.toProfileResponse(clientService.findByUserId(id))
+        );
     }
 }

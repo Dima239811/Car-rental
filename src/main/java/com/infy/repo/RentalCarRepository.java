@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -21,4 +22,16 @@ public interface RentalCarRepository extends JpaRepository<RentalCar, CarRentalI
 
     List<RentalCar> findByCarIdAndRentalStatusIn(Long carId, List<RentalStatus> statuses);
     List<RentalCar> findByRentalIdAndRentalStatusIn(Long rentalId, List<RentalStatus> statuses);
+
+    @Query("""
+        SELECT rc FROM RentalCar rc 
+        WHERE rc.car.id = :carId 
+        AND rc.rental.startDate < :endDate 
+        AND rc.rental.endDate > :startDate
+    """)
+    List<RentalCar> findConflictingRentals(
+            @Param("carId") Long carId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }

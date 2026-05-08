@@ -3,6 +3,7 @@ package com.infy.mapper;
 import com.infy.dto.ClientBriefResponse;
 import com.infy.dto.RegisterClientRequest;
 import com.infy.dto.RequestClient;
+import com.infy.dto.UserProfileResponse;
 import com.infy.entity.Client;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -27,4 +28,12 @@ public interface ClientMapper {
     @Mapping(target = "rentCount", constant = "0")
     @Mapping(target = "user", ignore = true)
     Client toEntity(RegisterClientRequest request);
+
+    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "id", target = "clientId")
+    @Mapping(source = "user.login", target = "login")
+    @Mapping(source = "user.fullName", target = "fullName")
+    @Mapping(source = "user.phone", target = "phone")
+    @Mapping(source = "user.role", target = "role")
+    UserProfileResponse toProfileResponse(Client client);
 }

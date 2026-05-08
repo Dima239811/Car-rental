@@ -37,6 +37,7 @@ public class Car {
     @Column(name = "deposit")
     private Double deposit;
 
+    // убрать возможно
     @Column(name = "available")
     private Boolean available;
 

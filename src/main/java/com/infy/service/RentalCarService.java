@@ -1,12 +1,17 @@
 package com.infy.service;
 
+import com.infy.dto.RentalCarRequest;
+import com.infy.entity.Car;
 import com.infy.entity.CarRentalId;
+import com.infy.entity.Rental;
 import com.infy.entity.RentalCar;
 import com.infy.repo.RentalCarRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RentalCarService {
     private final RentalCarRepository rentalCarRepository;
+    private final EntityManager entityManager;
 
     @Transactional(readOnly = true)
     public List<RentalCar> findAll() {
@@ -55,5 +61,26 @@ public class RentalCarService {
     @Transactional
     public void deleteById(CarRentalId id) {
         rentalCarRepository.deleteById(id);
+    }
+
+    public boolean isAvailable(Long carId, LocalDate startDate, LocalDate endDate) {
+        List<RentalCar> conflicts = rentalCarRepository.findConflictingRentals(
+                carId, startDate, endDate
+        );
+        return conflicts.isEmpty();
+    }
+
+    @Transactional
+    public RentalCar createLink(RentalCarRequest dto) {
+        CarRentalId id = new CarRentalId(dto.getCarId(), dto.getRentalId());
+
+        RentalCar rentalCar = new RentalCar();
+        rentalCar.setId(id);
+        rentalCar.setDiscount(dto.getDiscount());
+
+        rentalCar.setCar(entityManager.getReference(Car.class, dto.getCarId()));
+        rentalCar.setRental(entityManager.getReference(Rental.class, dto.getRentalId()));
+
+        return rentalCarRepository.save(rentalCar);
     }
 }

@@ -9,6 +9,7 @@ import com.infy.entity.User;
 import com.infy.enums.RentalStatus;
 import com.infy.enums.Role;
 import com.infy.exception.BadRequestException;
+import com.infy.exception.ResourceNotFoundException;
 import com.infy.mapper.ClientMapper;
 import com.infy.repo.ClientRepository;
 import com.infy.repo.RentalCarRepository;
@@ -100,5 +101,10 @@ public class ClientService {
         client.setUser(user);
 
         return clientRepository.save(client);
+    }
+
+    public Client findByUserId(Long id) {
+        return clientRepository.findByUserId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Клиент с id " + id + " не найден"));
     }
 }
