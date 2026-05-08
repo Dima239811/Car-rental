@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -41,5 +42,5 @@ public class Rental {
 
     @JsonIgnore
     @OneToMany(mappedBy = "rental", fetch = FetchType.LAZY)
-    private List<RentalCar> rentalCars;
+    private List<RentalCar> rentalCars = new ArrayList<>();
 }

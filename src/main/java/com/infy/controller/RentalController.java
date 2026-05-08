@@ -7,6 +7,8 @@ import com.infy.exception.ResourceNotFoundException;
 import com.infy.mapper.RentalMapper;
 import com.infy.service.RentalService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,9 @@ public class RentalController {
     private final RentalService rentalService;
 
     private final RentalMapper rentalMapper;
+
+    private static final Logger logger = LoggerFactory.getLogger(RentalController.class);
+
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -40,20 +45,28 @@ public class RentalController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CLIENT')")
     public ResponseEntity<RentalBriefResponse> create(@RequestBody CreateRentalRequest rental) {
         Rental rental1 = rentalService.save(rental);
+        logger.info("машины: {}", rental1.getRentalCars());
         return ResponseEntity.ok(rentalMapper.toBriefResponse(rental1));
     }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseEntity<RentalBriefResponse> update(@PathVariable Long id, @RequestBody CreateRentalRequest rental) {
-        Rental rental1 = rentalService.update(id, rental);
-        return ResponseEntity.ok(rentalMapper.toBriefResponse(rental1));
-    }
+//    @PutMapping("/{id}")
+//    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+//    public ResponseEntity<RentalBriefResponse> update(@PathVariable Long id, @RequestBody CreateRentalRequest rental) {
+//        Rental rental1 = rentalService.update(id, rental);
+//        return ResponseEntity.ok(rentalMapper.toBriefResponse(rental1));
+//    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         rentalService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/my-rentals/{userId}")
+    @PreAuthorize("hasAnyRole('CLIENT')")
+    public ResponseEntity<List<RentalBriefResponse>> getRentalsByUserId(@PathVariable Long userId) {
+        List<Rental> rentals = rentalService.getRentalsByCurrentUser(userId);
+        return ResponseEntity.ok(rentalMapper.toBriefResponseList(rentals));
     }
 }

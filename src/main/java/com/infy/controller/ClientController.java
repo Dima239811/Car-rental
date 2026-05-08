@@ -65,4 +65,12 @@ public class ClientController {
                 clientMapper.toProfileResponse(clientService.findByUserId(id))
         );
     }
+
+    @GetMapping("/by-user/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CLIENT')")
+    public ResponseEntity<ClientBriefResponse> getByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(
+                clientMapper.toBriefResponse(clientService.findByUserId(userId))
+        );
+    }
 }
