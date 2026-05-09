@@ -2,6 +2,7 @@ package com.infy.controller;
 
 import com.infy.dto.CreateRentalRequest;
 import com.infy.dto.RentalBriefResponse;
+import com.infy.dto.UpdateRentalRequest;
 import com.infy.entity.Rental;
 import com.infy.exception.ResourceNotFoundException;
 import com.infy.mapper.RentalMapper;
@@ -49,12 +50,13 @@ public class RentalController {
         return ResponseEntity.ok(rentalMapper.toBriefResponse(rental1));
     }
 
-//    @PutMapping("/{id}")
-//    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-//    public ResponseEntity<RentalBriefResponse> update(@PathVariable Long id, @RequestBody CreateRentalRequest rental) {
-//        Rental rental1 = rentalService.update(id, rental);
-//        return ResponseEntity.ok(rentalMapper.toBriefResponse(rental1));
-//    }
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<RentalBriefResponse> update(@PathVariable Long id, @RequestBody UpdateRentalRequest rental) {
+        Rental rental1 = rentalService.update(id, rental);
+        logger.info("Обновлена аренда: {}", rental);
+        return ResponseEntity.ok(rentalMapper.toBriefResponse(rental1));
+    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -69,4 +71,20 @@ public class RentalController {
         List<Rental> rentals = rentalService.getRentalsByCurrentUser(userId);
         return ResponseEntity.ok(rentalMapper.toBriefResponseList(rentals));
     }
+
+    @PatchMapping("/{id}/cancel")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<RentalBriefResponse> cancelRental(@PathVariable Long id) {
+        Rental updatedRental = rentalService.cancelRental(id);
+        logger.info("Аренда ID {} отменена пользователем", id);
+        return ResponseEntity.ok(rentalMapper.toBriefResponse(updatedRental));
+    }
+
+    // TODO дописать
+//    @GetMapping("/manager-rentals/{userId}")
+//    @PreAuthorize("hasRole('MANAGER')")
+//    public ResponseEntity<List<RentalBriefResponse>> getManagerRentals(@PathVariable Long userId) {
+//        List<Rental> rentals = rentalService.getRentalsByManager(userId);
+//        return ResponseEntity.ok(rentalMapper.toBriefResponseList(rentals));
+//    }
 }

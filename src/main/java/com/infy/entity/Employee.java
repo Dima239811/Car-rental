@@ -27,4 +27,17 @@ public class Employee {
     @OneToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
+
+    @Override
+    public String toString() {
+        return "Employee{" +
+                "id=" + id +
+                ", position='" + position + '\'' +
+                ", salary=" + salary +
+                ", department='" + department + '\'' +
+                ", officeNumber='" + officeNumber + '\'' +
+                ", workEmail='" + workEmail + '\'' +
+                ", user=" + user +
+                '}';
+    }
 }

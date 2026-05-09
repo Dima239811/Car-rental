@@ -1,5 +1,6 @@
 package com.infy.service;
 
+import com.infy.controller.RentalController;
 import com.infy.dto.CreateEmployeeRequest;
 import com.infy.entity.Employee;
 import com.infy.entity.Rental;
@@ -7,10 +8,13 @@ import com.infy.entity.User;
 import com.infy.enums.RentalStatus;
 import com.infy.enums.Role;
 import com.infy.exception.BadRequestException;
+import com.infy.exception.ResourceNotFoundException;
 import com.infy.repo.EmployeeRepository;
 import com.infy.repo.RentalRepository;
 import com.infy.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +31,7 @@ public class EmployeeService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
     @Transactional(readOnly = true)
     public List<Employee> findAll() {
@@ -94,5 +99,12 @@ public class EmployeeService {
         employee.setUser(user);
 
         return employeeRepository.save(employee);
+    }
+
+    public Employee findByUserId(Long id) {
+        Employee employee = employeeRepository.findByUserId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Сотрудник с id " + id + " не найден"));
+        logger.info("Получен сотрудник {}", employee);
+        return employee;
     }
 }

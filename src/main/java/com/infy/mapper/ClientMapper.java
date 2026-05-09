@@ -1,9 +1,6 @@
 package com.infy.mapper;
 
-import com.infy.dto.ClientBriefResponse;
-import com.infy.dto.RegisterClientRequest;
-import com.infy.dto.RequestClient;
-import com.infy.dto.UserProfileResponse;
+import com.infy.dto.*;
 import com.infy.entity.Client;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -36,4 +33,15 @@ public interface ClientMapper {
     @Mapping(source = "user.phone", target = "phone")
     @Mapping(source = "user.role", target = "role")
     UserProfileResponse toProfileResponse(Client client);
+
+
+    @Mapping(source = "user.login", target = "login")
+    @Mapping(source = "user.fullName", target = "fullName")
+    @Mapping(source = "user.phone", target = "phone")
+    @Mapping(source = "driverLicense", target = "driverLicense")
+    @Mapping(source = "birthDate", target = "birthDate")
+    @Mapping(source = "personalEmail", target = "personalEmail")
+    ClientProfileResponse toClientProfileResponse(Client client);
+
+    List<ClientProfileResponse> toClientProfileResponseList(List<Client> clients);
 }

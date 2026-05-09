@@ -1,5 +1,6 @@
 package com.infy.service;
 
+import com.infy.dto.UserUpdateRequest;
 import com.infy.entity.User;
 import com.infy.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,5 +33,16 @@ public class UserService {
     @Transactional
     public void deleteById(Long id) {
         userRepository.deleteById(id);
+    }
+
+    public User updateUser(Long id, UserUpdateRequest req) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (req.getLogin() != null) user.setLogin(req.getLogin());
+        if (req.getFullName() != null) user.setFullName(req.getFullName());
+        if (req.getPhone() != null) user.setPhone(req.getPhone());
+
+        return userRepository.save(user);
     }
 }

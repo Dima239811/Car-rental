@@ -1,11 +1,13 @@
 package com.infy.service;
 
 import com.infy.dto.CreateRentalRequest;
+import com.infy.dto.UpdateRentalRequest;
 import com.infy.entity.*;
 import com.infy.enums.RentalStatus;
 import com.infy.exception.BadRequestException;
 import com.infy.exception.ResourceNotFoundException;
 import com.infy.repo.*;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -132,27 +134,18 @@ public class RentalService {
         return rentalRepository.findByClientId(client.getId());
     }
 
+    @Transactional
+    public Rental update(Long id, UpdateRentalRequest rental) {
+        Rental existing = rentalRepository.findById(id)
+                .orElseThrow(() -> new com.infy.exception.ResourceNotFoundException("Аренда с ID " + id + " не найдена"));
 
+        existing.setStartDate(rental.getStartDate());
+        existing.setEndDate(rental.getEndDate());
+        existing.setComment(rental.getComment());
+        existing.setStatus(RentalStatus.valueOf(rental.getStatus()));
 
-// TODO ИСПРАВИТЬ ПОТОМ
-    // без статуса обновляет
-//    @Transactional
-//    public Rental update(Long id, CreateRentalRequest rental) {
-//        Rental existing = rentalRepository.findById(id)
-//                .orElseThrow(() -> new com.infy.exception.ResourceNotFoundException("Аренда с ID " + id + " не найдена"));
-//
-//        existing.setStartDate(rental.getStartDate());
-//        existing.setEndDate(rental.getEndDate());
-//        existing.setComment(rental.getComment());
-//        existing.setClient(clientRepository.findById(rental.getClientId()).orElseThrow(
-//                () -> new com.infy.exception.ResourceNotFoundException("Клиент с ID " + rental.getClientId() + " не найден")
-//        ));
-//        existing.setEmployee(employeeRepository.findById(rental.getEmployeeId()).orElseThrow(
-//                () -> new com.infy.exception.ResourceNotFoundException("Сотрудник с ID " + rental.getEmployeeId() + " не найден")
-//        ));
-//
-//        return rentalRepository.save(existing);
-//    }
+        return rentalRepository.save(existing);
+    }
 
     @Transactional
     public void deleteById(Long id) {
@@ -164,5 +157,24 @@ public class RentalService {
         }
 
         rentalRepository.deleteById(id);
+    }
+
+    public Rental cancelRental(Long rentalId) {
+        Rental rental = rentalRepository.findById(rentalId)
+                .orElseThrow(() -> new EntityNotFoundException("Rental not found"));
+
+        if (!canUserCancel(rental.getStatus())) {
+            throw new RuntimeException(
+                    "Нельзя отменить аренду в статусе: " + rental.getStatus());
+        }
+
+        rental.setStatus(RentalStatus.CANCELLED);
+        return rentalRepository.save(rental);
+    }
+
+    private boolean canUserCancel(RentalStatus currentStatus) {
+        return currentStatus == RentalStatus.PENDING
+                || currentStatus == RentalStatus.CONFIRMED
+                || currentStatus == RentalStatus.ACTIVE;
     }
 }

@@ -1,6 +1,7 @@
 package com.infy.controller;
 
 import com.infy.dto.ClientBriefResponse;
+import com.infy.dto.ClientProfileResponse;
 import com.infy.dto.RequestClient;
 import com.infy.dto.UserProfileResponse;
 import com.infy.entity.Client;
@@ -24,9 +25,9 @@ public class ClientController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseEntity<List<ClientBriefResponse>> getAll() {
-        List<ClientBriefResponse> clients = clientService.findAllWithUser();
-        return ResponseEntity.ok(clients);
+    public ResponseEntity<List<ClientProfileResponse>> getAll() {
+        List<Client> clients = clientService.findAllWithUser();
+        return ResponseEntity.ok(clientMapper.toClientProfileResponseList(clients));
     }
 
     @GetMapping("/{id}")
@@ -72,5 +73,12 @@ public class ClientController {
         return ResponseEntity.ok(
                 clientMapper.toBriefResponse(clientService.findByUserId(userId))
         );
+    }
+
+    @DeleteMapping("/{login}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<Void> delete(@PathVariable String login) {
+        clientService.deleteById(login);
+        return ResponseEntity.noContent().build();
     }
 }
