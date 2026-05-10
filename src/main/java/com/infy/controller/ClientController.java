@@ -81,4 +81,24 @@ public class ClientController {
         clientService.deleteById(login);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/by-user/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CLIENT')")
+    public ResponseEntity<ClientBriefResponse> updateByUserId(
+            @PathVariable Long userId,
+            @RequestBody RequestClient client
+    ) {
+        Client updated = clientService.updateByUserId(userId, client);
+        return ResponseEntity.ok(clientMapper.toBriefResponse(updated));
+    }
+
+    @PutMapping("/by-login/{login}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<ClientBriefResponse> updateByLogin(
+            @PathVariable String login,
+            @RequestBody RequestClient client
+    ) {
+        Client updated = clientService.updateByLogin(login, client);
+        return ResponseEntity.ok(clientMapper.toBriefResponse(updated));
+    }
 }

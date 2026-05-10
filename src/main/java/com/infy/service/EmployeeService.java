@@ -2,6 +2,7 @@ package com.infy.service;
 
 import com.infy.controller.RentalController;
 import com.infy.dto.CreateEmployeeRequest;
+import com.infy.dto.EmployeeUpdateRequest;
 import com.infy.entity.Employee;
 import com.infy.entity.Rental;
 import com.infy.entity.User;
@@ -54,7 +55,7 @@ public class EmployeeService {
     }
 
     @Transactional
-    public Employee update(Long id, Employee employee) {
+    public Employee update(Long id, EmployeeUpdateRequest employee) {
         Employee existing = employeeRepository.findById(id)
                 .orElseThrow(() -> new com.infy.exception.ResourceNotFoundException("Сотрудник с ID " + id + " не найден"));
 
@@ -63,7 +64,7 @@ public class EmployeeService {
         existing.setDepartment(employee.getDepartment());
         existing.setOfficeNumber(employee.getOfficeNumber());
         existing.setWorkEmail(employee.getWorkEmail());
-        existing.setUser(employee.getUser());
+        //existing.setUser(employee.getUser()); оставляем прошлого юзера как был
 
         return employeeRepository.save(existing);
     }

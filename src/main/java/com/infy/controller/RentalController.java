@@ -80,11 +80,10 @@ public class RentalController {
         return ResponseEntity.ok(rentalMapper.toBriefResponse(updatedRental));
     }
 
-    // TODO дописать
-//    @GetMapping("/manager-rentals/{userId}")
-//    @PreAuthorize("hasRole('MANAGER')")
-//    public ResponseEntity<List<RentalBriefResponse>> getManagerRentals(@PathVariable Long userId) {
-//        List<Rental> rentals = rentalService.getRentalsByManager(userId);
-//        return ResponseEntity.ok(rentalMapper.toBriefResponseList(rentals));
-//    }
+    @GetMapping("/manager-rentals/{userId}")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<List<RentalBriefResponse>> getManagerRentals(@PathVariable Long userId) {
+        List<Rental> rentals = rentalService.getRentalsByManager(userId);
+        return ResponseEntity.ok(rentalMapper.toBriefResponseList(rentals));
+    }
 }

@@ -41,4 +41,13 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     Employee findManagerWithLeastRentals();
 
     List<Rental> findByClientId(Long clientId);
+
+    @Query("""
+    select r from Rental r
+    join fetch r.client
+    join fetch r.employee e
+    join fetch e.user
+    where e.user.id = :userId
+""")
+    List<Rental> findByManagerUserId(@Param("userId") Long userId);
 }

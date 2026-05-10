@@ -177,4 +177,9 @@ public class RentalService {
                 || currentStatus == RentalStatus.CONFIRMED
                 || currentStatus == RentalStatus.ACTIVE;
     }
+
+    @Transactional(readOnly = true)
+    public List<Rental> getRentalsByManager(Long userId) {
+        return rentalRepository.findByManagerUserId(userId);
+    }
 }

@@ -2,6 +2,7 @@ package com.infy.controller;
 
 import com.infy.dto.CreateEmployeeRequest;
 import com.infy.dto.EmployeeBriefResponse;
+import com.infy.dto.EmployeeUpdateRequest;
 import com.infy.dto.UserProfileResponse;
 import com.infy.entity.Employee;
 import com.infy.exception.ResourceNotFoundException;
@@ -49,7 +50,7 @@ public class EmployeeController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EmployeeBriefResponse> update(@PathVariable Long id, @RequestBody Employee employee) {
+    public ResponseEntity<EmployeeBriefResponse> update(@PathVariable Long id, @RequestBody EmployeeUpdateRequest employee) {
         Employee updated = employeeService.update(id, employee);
         return ResponseEntity.ok(employeeMapper.toBriefResponse(updated));
     }

@@ -121,4 +121,35 @@ public class ClientService {
         return clientRepository.findByUserId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Клиент с id " + id + " не найден"));
     }
+
+    @Transactional
+    public Client updateByUserId(Long userId, RequestClient request) {
+
+        Client existing = clientRepository.findByUserId(userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Клиент с userId " + userId + " не найден"));
+
+        existing.setDriverLicense(request.getDriverLicense());
+        existing.setBirthDate(request.getBirthDate());
+        existing.setPersonalEmail(request.getPersonalEmail());
+        existing.setRentCount(request.getRentCount());
+
+        return clientRepository.save(existing);
+    }
+
+    @Transactional
+    public Client updateByLogin(String login, RequestClient request) {
+        Client existing = clientRepository.findByUser_Login(login)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Клиент с login " + login + " не найден"
+                        ));
+
+        existing.setDriverLicense(request.getDriverLicense());
+        existing.setBirthDate(request.getBirthDate());
+        existing.setPersonalEmail(request.getPersonalEmail());
+
+        return clientRepository.save(existing);
+    }
 }
+
