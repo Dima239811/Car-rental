@@ -59,7 +59,7 @@ public class RentalController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         rentalService.deleteById(id);
         return ResponseEntity.noContent().build();

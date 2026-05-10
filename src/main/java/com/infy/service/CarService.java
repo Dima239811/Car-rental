@@ -1,5 +1,6 @@
 package com.infy.service;
 
+import com.infy.dto.CarCreateUpdateDTO;
 import com.infy.entity.Car;
 import com.infy.entity.RentalCar;
 import com.infy.enums.RentalStatus;
@@ -41,12 +42,25 @@ public class CarService {
     }
 
     @Transactional
-    public Car save(Car car) {
+    public Car save(CarCreateUpdateDTO carDto) {
+        Car car = new Car();
+        car.setBrand(carDto.getBrand());
+        car.setModel(carDto.getModel());
+        car.setYear(carDto.getYear());
+        car.setPrice(carDto.getPrice());
+        car.setDeposit(carDto.getDeposit());
+        car.setVin(carDto.getVin());
+        car.setRegistrationDate(carDto.getRegistrationDate());
+        car.setEngineVolume(carDto.getEngineVolume());
+        car.setColor(carDto.getColor());
+        car.setInsuranceValidUntil(carDto.getInsuranceValidUntil());
+        car.setInspectionValidUntil(carDto.getInspectionValidUntil());
+        car.setAvailable(true);
         return carRepository.save(car);
     }
 
     @Transactional
-    public Car update(Long id, Car car) {
+    public Car update(Long id, CarCreateUpdateDTO car) {
         Car existing = carRepository.findById(id)
                 .orElseThrow(() -> new com.infy.exception.ResourceNotFoundException("Автомобиль с ID " + id + " не найден"));
 
@@ -55,7 +69,7 @@ public class CarService {
         existing.setYear(car.getYear());
         existing.setPrice(car.getPrice());
         existing.setDeposit(car.getDeposit());
-        existing.setAvailable(car.getAvailable());
+        //existing.setAvailable(car.getAvailable());
         existing.setVin(car.getVin());
         existing.setRegistrationDate(car.getRegistrationDate());
         existing.setEngineVolume(car.getEngineVolume());
