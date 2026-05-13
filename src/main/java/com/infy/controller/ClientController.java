@@ -75,7 +75,7 @@ public class ClientController {
         );
     }
 
-    @DeleteMapping("/{login}")
+    @DeleteMapping("login/{login}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Void> delete(@PathVariable String login) {
         clientService.deleteById(login);
