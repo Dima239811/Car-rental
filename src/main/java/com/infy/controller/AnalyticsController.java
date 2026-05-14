@@ -1,11 +1,14 @@
 package com.infy.controller;
 
+import com.infy.dto.AnalyticsByPeriodResponse;
+import com.infy.dto.ClientsByBrandReportResponse;
 import com.infy.service.AnalyticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 @RestController
@@ -14,15 +17,15 @@ import java.util.Map;
 public class AnalyticsController {
     private final AnalyticsService analyticsService;
 
-    @GetMapping("/rentals")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseEntity<Map<String, Object>> getRentalsReport() {
-        return ResponseEntity.ok(analyticsService.getRentalsReport());
-    }
+//    @GetMapping("/rentals")
+//    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+//    public ResponseEntity<Map<String, Object>> getRentalsReport() {
+//        return ResponseEntity.ok(analyticsService.getRentalsReport());
+//    }
 
     @GetMapping("/clients/by-brand")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseEntity<Map<String, Object>> getClientsByCarBrand(
+    public ResponseEntity<ClientsByBrandReportResponse> getClientsByCarBrand(
             @RequestParam String brand) {
         return ResponseEntity.ok(analyticsService.getClientsByCarBrand(brand));
     }
@@ -38,5 +41,18 @@ public class AnalyticsController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Map<String, Object>> getCarsReport() {
         return ResponseEntity.ok(analyticsService.getCarsRentalReport());
+    }
+
+    @GetMapping("/period")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<AnalyticsByPeriodResponse> getAnalyticsByPeriod(
+
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate
+    ) {
+
+        return ResponseEntity.ok(
+                analyticsService.getAnalyticsByPeriod(startDate, endDate)
+        );
     }
 }
