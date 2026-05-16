@@ -3,6 +3,7 @@ package com.infy.dto;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class RentalBriefResponse {
@@ -19,4 +20,6 @@ public class RentalBriefResponse {
     private Long employeeId;
     private String employeeFullName;
     private String employeeLogin;
+
+    private List<RentalCarBriefResponse> cars;
 }

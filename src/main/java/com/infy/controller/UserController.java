@@ -1,7 +1,10 @@
 package com.infy.controller;
 
+import com.infy.dto.UserProfileResponse;
+import com.infy.dto.UserUpdateRequest;
 import com.infy.entity.User;
 import com.infy.exception.ResourceNotFoundException;
+import com.infy.mapper.UserMapper;
 import com.infy.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -36,4 +40,15 @@ public class UserController {
         userService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserUpdateRequest> updateUser(
+            @PathVariable Long id,
+            @RequestBody UserUpdateRequest request) {
+
+        User updated = userService.updateUser(id, request);
+        return ResponseEntity.ok(userMapper.toBriefResponse(updated));
+    }
+
 }

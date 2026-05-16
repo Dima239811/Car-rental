@@ -1,6 +1,7 @@
 package com.infy.service;
 
 import com.infy.dto.ClientBriefResponse;
+import com.infy.dto.ClientProfileResponse;
 import com.infy.dto.RegisterClientRequest;
 import com.infy.dto.RequestClient;
 import com.infy.entity.Client;
@@ -40,9 +41,8 @@ public class ClientService {
     }
 
     @Transactional(readOnly = true)
-    public List<ClientBriefResponse> findAllWithUser() {
-        List<Client> list = clientRepository.findAllWithUser();
-        return clientMapper.toBriefResponseList(list);
+    public List<Client> findAllWithUser() {
+        return clientRepository.findAllWithUser();
     }
 
     @Transactional(readOnly = true)
@@ -84,6 +84,20 @@ public class ClientService {
     }
 
     @Transactional
+    public void deleteById(String login) {
+        Client client = clientRepository.findByUser_Login(login).orElse(null);
+        if (client == null) {
+            throw new ResourceNotFoundException(String.format("Клиент с login %s не найден", login));
+        }
+
+        List<Rental> activeRentals = rentalRepository.findByClientIdAndStatusIn(client.getId(), List.of(RentalStatus.PENDING, RentalStatus.CONFIRMED, RentalStatus.ACTIVE));
+        if (!activeRentals.isEmpty()) {
+            throw new BadRequestException("Невозможно удалить клиента с Login " + login + ": есть активные аренды");
+        }
+        clientRepository.deleteById(client.getId());
+    }
+
+    @Transactional
     public Client register(RegisterClientRequest request) {
         if (userRepository.findByLogin(request.getLogin()).isPresent()) {
             throw new BadRequestException("Пользователь с логином '" + request.getLogin() + "' уже существует");
@@ -107,4 +121,35 @@ public class ClientService {
         return clientRepository.findByUserId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Клиент с id " + id + " не найден"));
     }
+
+    @Transactional
+    public Client updateByUserId(Long userId, RequestClient request) {
+
+        Client existing = clientRepository.findByUserId(userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Клиент с userId " + userId + " не найден"));
+
+        existing.setDriverLicense(request.getDriverLicense());
+        existing.setBirthDate(request.getBirthDate());
+        existing.setPersonalEmail(request.getPersonalEmail());
+        existing.setRentCount(request.getRentCount());
+
+        return clientRepository.save(existing);
+    }
+
+    @Transactional
+    public Client updateByLogin(String login, RequestClient request) {
+        Client existing = clientRepository.findByUser_Login(login)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Клиент с login " + login + " не найден"
+                        ));
+
+        existing.setDriverLicense(request.getDriverLicense());
+        existing.setBirthDate(request.getBirthDate());
+        existing.setPersonalEmail(request.getPersonalEmail());
+
+        return clientRepository.save(existing);
+    }
 }
+

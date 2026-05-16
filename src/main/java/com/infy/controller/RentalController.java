@@ -2,11 +2,14 @@ package com.infy.controller;
 
 import com.infy.dto.CreateRentalRequest;
 import com.infy.dto.RentalBriefResponse;
+import com.infy.dto.UpdateRentalRequest;
 import com.infy.entity.Rental;
 import com.infy.exception.ResourceNotFoundException;
 import com.infy.mapper.RentalMapper;
 import com.infy.service.RentalService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +23,9 @@ public class RentalController {
     private final RentalService rentalService;
 
     private final RentalMapper rentalMapper;
+
+    private static final Logger logger = LoggerFactory.getLogger(RentalController.class);
+
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -40,20 +46,44 @@ public class RentalController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CLIENT')")
     public ResponseEntity<RentalBriefResponse> create(@RequestBody CreateRentalRequest rental) {
         Rental rental1 = rentalService.save(rental);
+        logger.info("машины: {}", rental1.getRentalCars());
         return ResponseEntity.ok(rentalMapper.toBriefResponse(rental1));
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseEntity<RentalBriefResponse> update(@PathVariable Long id, @RequestBody CreateRentalRequest rental) {
+    public ResponseEntity<RentalBriefResponse> update(@PathVariable Long id, @RequestBody UpdateRentalRequest rental) {
         Rental rental1 = rentalService.update(id, rental);
+        logger.info("Обновлена аренда: {}", rental);
         return ResponseEntity.ok(rentalMapper.toBriefResponse(rental1));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         rentalService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/my-rentals/{userId}")
+    @PreAuthorize("hasAnyRole('CLIENT')")
+    public ResponseEntity<List<RentalBriefResponse>> getRentalsByUserId(@PathVariable Long userId) {
+        List<Rental> rentals = rentalService.getRentalsByCurrentUser(userId);
+        return ResponseEntity.ok(rentalMapper.toBriefResponseList(rentals));
+    }
+
+    @PatchMapping("/{id}/cancel")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<RentalBriefResponse> cancelRental(@PathVariable Long id) {
+        Rental updatedRental = rentalService.cancelRental(id);
+        logger.info("Аренда ID {} отменена пользователем", id);
+        return ResponseEntity.ok(rentalMapper.toBriefResponse(updatedRental));
+    }
+
+    @GetMapping("/manager-rentals/{userId}")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<List<RentalBriefResponse>> getManagerRentals(@PathVariable Long userId) {
+        List<Rental> rentals = rentalService.getRentalsByManager(userId);
+        return ResponseEntity.ok(rentalMapper.toBriefResponseList(rentals));
     }
 }

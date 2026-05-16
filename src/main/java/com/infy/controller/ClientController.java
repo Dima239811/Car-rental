@@ -1,6 +1,7 @@
 package com.infy.controller;
 
 import com.infy.dto.ClientBriefResponse;
+import com.infy.dto.ClientProfileResponse;
 import com.infy.dto.RequestClient;
 import com.infy.dto.UserProfileResponse;
 import com.infy.entity.Client;
@@ -24,9 +25,9 @@ public class ClientController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseEntity<List<ClientBriefResponse>> getAll() {
-        List<ClientBriefResponse> clients = clientService.findAllWithUser();
-        return ResponseEntity.ok(clients);
+    public ResponseEntity<List<ClientProfileResponse>> getAll() {
+        List<Client> clients = clientService.findAllWithUser();
+        return ResponseEntity.ok(clientMapper.toClientProfileResponseList(clients));
     }
 
     @GetMapping("/{id}")
@@ -52,7 +53,7 @@ public class ClientController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         clientService.deleteById(id);
         return ResponseEntity.noContent().build();
@@ -64,5 +65,40 @@ public class ClientController {
         return ResponseEntity.ok(
                 clientMapper.toProfileResponse(clientService.findByUserId(id))
         );
+    }
+
+    @GetMapping("/by-user/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CLIENT')")
+    public ResponseEntity<ClientBriefResponse> getByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(
+                clientMapper.toBriefResponse(clientService.findByUserId(userId))
+        );
+    }
+
+    @DeleteMapping("login/{login}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<Void> delete(@PathVariable String login) {
+        clientService.deleteById(login);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/by-user/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CLIENT')")
+    public ResponseEntity<ClientBriefResponse> updateByUserId(
+            @PathVariable Long userId,
+            @RequestBody RequestClient client
+    ) {
+        Client updated = clientService.updateByUserId(userId, client);
+        return ResponseEntity.ok(clientMapper.toBriefResponse(updated));
+    }
+
+    @PutMapping("/by-login/{login}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<ClientBriefResponse> updateByLogin(
+            @PathVariable String login,
+            @RequestBody RequestClient client
+    ) {
+        Client updated = clientService.updateByLogin(login, client);
+        return ResponseEntity.ok(clientMapper.toBriefResponse(updated));
     }
 }

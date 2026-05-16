@@ -2,11 +2,15 @@ package com.infy.controller;
 
 import com.infy.dto.CreateEmployeeRequest;
 import com.infy.dto.EmployeeBriefResponse;
+import com.infy.dto.EmployeeUpdateRequest;
+import com.infy.dto.UserProfileResponse;
 import com.infy.entity.Employee;
 import com.infy.exception.ResourceNotFoundException;
 import com.infy.mapper.EmployeeMapper;
 import com.infy.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +23,8 @@ import java.util.List;
 public class EmployeeController {
     private final EmployeeService employeeService;
     private final EmployeeMapper employeeMapper;
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
+
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -44,7 +50,7 @@ public class EmployeeController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EmployeeBriefResponse> update(@PathVariable Long id, @RequestBody Employee employee) {
+    public ResponseEntity<EmployeeBriefResponse> update(@PathVariable Long id, @RequestBody EmployeeUpdateRequest employee) {
         Employee updated = employeeService.update(id, employee);
         return ResponseEntity.ok(employeeMapper.toBriefResponse(updated));
     }
@@ -54,5 +60,13 @@ public class EmployeeController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         employeeService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/profile")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<EmployeeBriefResponse> getEmployeeProfile(@PathVariable Long id) {
+        EmployeeBriefResponse employee = employeeMapper.toBriefResponse(employeeService.findByUserId(id));
+        logger.info("Получен сотрудник {}", employee);
+        return ResponseEntity.ok(employee);
     }
 }

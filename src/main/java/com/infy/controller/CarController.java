@@ -1,7 +1,9 @@
 package com.infy.controller;
 
+import com.infy.dto.CarCreateUpdateDTO;
 import com.infy.entity.Car;
 import com.infy.exception.ResourceNotFoundException;
+import com.infy.mapper.CarMapper;
 import com.infy.service.CarService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,20 +17,25 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CarController {
     private final CarService carService;
+    private final CarMapper carMapper;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CLIENT')")
-    public ResponseEntity<List<Car>> getAll() {
-        return ResponseEntity.ok(carService.findAll());
+    public ResponseEntity<List<CarCreateUpdateDTO>> getAll() {
+        return ResponseEntity.ok(carMapper.toCarCreateUpdateDTOList(carService.findAll()));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CLIENT')")
-    public ResponseEntity<Car> getById(@PathVariable Long id) {
+    public ResponseEntity<CarCreateUpdateDTO> getById(@PathVariable Long id) {
         return carService.findById(id)
-                .map(ResponseEntity::ok)
+                .map(car -> {
+                    CarCreateUpdateDTO dto = carMapper.toCarCreateUpdateDTO(car);
+                    return ResponseEntity.ok(dto);
+                })
                 .orElseThrow(() -> new ResourceNotFoundException("Автомобиль с ID " + id + " не найден"));
     }
+
 
     @GetMapping("/available")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'CLIENT')")
@@ -38,14 +45,14 @@ public class CarController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Car> create(@RequestBody Car car) {
-        return ResponseEntity.ok(carService.save(car));
+    public ResponseEntity<CarCreateUpdateDTO> create(@RequestBody CarCreateUpdateDTO car) {
+        return ResponseEntity.ok(carMapper.toCarCreateUpdateDTO(carService.save(car)));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Car> update(@PathVariable Long id, @RequestBody Car car) {
-        return ResponseEntity.ok(carService.update(id, car));
+    public ResponseEntity<CarCreateUpdateDTO> update(@PathVariable Long id, @RequestBody CarCreateUpdateDTO car) {
+        return ResponseEntity.ok(carMapper.toCarCreateUpdateDTO(carService.update(id, car)));
     }
 
     @DeleteMapping("/{id}")

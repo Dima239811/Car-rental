@@ -1,6 +1,8 @@
 package com.infy.service;
 
+import com.infy.dto.UserUpdateRequest;
 import com.infy.entity.User;
+import com.infy.exception.BadRequestException;
 import com.infy.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,5 +34,29 @@ public class UserService {
     @Transactional
     public void deleteById(Long id) {
         userRepository.deleteById(id);
+    }
+
+    public User updateUser(Long id, UserUpdateRequest req) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (req.getLogin() != null) {
+
+            userRepository.findByLogin(req.getLogin())
+                    .ifPresent(existingUser -> {
+
+                        if (!existingUser.getId().equals(user.getId())) {
+                            throw new BadRequestException(
+                                    "Пользователь с логином '" + req.getLogin() + "' уже существует в системе"
+                            );
+                        }
+                    });
+        }
+
+        if (req.getLogin() != null) user.setLogin(req.getLogin());
+        if (req.getFullName() != null) user.setFullName(req.getFullName());
+        if (req.getPhone() != null) user.setPhone(req.getPhone());
+
+        return userRepository.save(user);
     }
 }

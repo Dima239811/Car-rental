@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+
+// служебный класс
 @RestController
 @RequestMapping("/api/rental-cars")
 @RequiredArgsConstructor
